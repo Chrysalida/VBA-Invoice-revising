@@ -284,3 +284,57 @@ lastRow2 = Range("J" & Rows.Count).End(xlUp).Row
 MsgBox ("Все готово к работе!")
 
 End Sub
+
+Sub Invoice_Page_Clear()
+    'Clears "Invoice" sheet;
+    'Deletes "Pivot" sheet;
+    'Marks cells to insert data with yellow color and instructions
+    
+Dim Invoice_sheet As Worksheet
+Set Invoice_sheet = Worksheets("Invoice")
+
+Dim Pivot_sheet As Worksheet
+
+
+'Clear
+    Invoice_sheet.Range("A2", "AA999").Clear
+    
+    If Invoice_sheet.ListObjects.Count > 0 Then
+    Range("Estratto[#All]").ClearContents
+    End If
+    
+    Columns("A:AB").Select
+    Selection.ColumnWidth = 9.11
+   
+'Mark
+    Invoice_sheet.Range("A2,H2").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+
+    Invoice_sheet.Range("B2").FormulaR1C1 = "'<-Вставьте сюда Estratto без шапки, только позиции заказов"
+
+    Invoice_sheet.Range("I2").FormulaR1C1 = "'<-Вставьте сюда все позиции из инвойса в ТТ"
+    
+'delete "Pivot" sheet if exists and if it's been allowed by the user
+    
+        Response = MsgBox("Удалить лист Pivot?", vbYesNo + vbQuestion + vbDefaultButton2, "Удаление листа")
+        If Response = vbYes Then
+            Set Pivot_sheet = ThisWorkbook.Sheets("Pivot")
+            If Not Pivot_sheet Is Nothing Then
+            On Error Resume Next
+            Sheets("Pivot").Select
+            ActiveWindow.SelectedSheets.Delete
+            End If
+    End If
+
+Invoice_sheet.Activate
+Invoice_sheet.Range("A2").Select
+    
+MsgBox ("Лист Invoice очищен")
+    
+End Sub
